@@ -19,6 +19,7 @@ move_cmd = {
 }
 
 
+# Creating a function to validate the file name and path
 def validate_file(file_name):
     # validate file name and path.
     if not valid_path(file_name):
@@ -30,16 +31,19 @@ def validate_file(file_name):
     return
 
 
+# Creating a function to validate the file type
 def valid_filetype(file_name):
     # validate file type
     return file_name.endswith('.txt')
 
 
+# Creating a function to validate the file path
 def valid_path(path):
     # validate file path
     return os.path.exists(path)
 
 
+# Creating a function to read the commands as content from the file
 def read(args):
     # get the file name/path
     file_name = args.read[0]
@@ -47,27 +51,47 @@ def read(args):
     # validate the file name/path
     validate_file(file_name)
 
-    # read and print the file content
+    # read and return the content of the file
     with open(file_name, 'r') as f:
         return f.read()
 
 
 # Creating a function to calculate the destination point of the robot
 def destinationcoordinate(my_args):
+    # Creating a list for unknown commands
+    unknown_commands = []
+
     # Splitting the commands
     for i in my_args:
         parts = i.split(",")
 
     # Splitting each command into direction and units
     for cmd in parts:
-        direction = cmd[0]
-        unit = cmd[1]
 
-        # Moving the current position according to the input commands
-        if direction in move_cmd and unit.isnumeric():
-            position[0] += move_cmd[direction][0] * int(unit)
-            position[1] += move_cmd[direction][1] * int(unit)
+        # Checking if the length onf one command is more than 2, if yes then ask user to input again
+        if len(cmd) > 2 or len(cmd) < 2:
+            print("Please input the commands properly. For more help write Filename.py -h.")
+            quit()
+        else:
+            direction = cmd[0]
+            unit = cmd[1]
 
+            # Moving the current position according to the input commands
+            if direction in move_cmd and unit.isnumeric():
+                position[0] += move_cmd[direction][0] * int(unit)
+                position[1] += move_cmd[direction][1] * int(unit)
+            else:
+                unknown_commands.append(cmd)
+
+    # Print any unknown commands
+    if len(unknown_commands) == len(parts):
+        print("These commands were unknown to the robot:", unknown_commands, ",please input the commands again.")
+        quit()
+    elif len(unknown_commands) > 0:
+        print("These commands were unknown to the robot:", unknown_commands, ",hence they have been ignored.")
+
+    # Source point of the robot
+    print("Source point of the robot is: [0,0]")
     # Destination Point of the Robot
     print("Destination point of the Robot is: ", position)
     return position
